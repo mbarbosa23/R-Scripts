@@ -1,0 +1,47 @@
+###########Create Phyloseq Object From DADA2 Data###########
+##We now construct a phyloseq object directly from the dada2 outputs.
+#Using Bayes Taxomy PR2 V3
+ps3_Euks <- phyloseq(otu_table(seqtab2.nochim, taxa_are_rows=FALSE), 
+                     sample_data(Belize_Meta), 
+                     tax_table(Bayes_taxa_PR2_V3))
+
+# store the DNA sequences of our ASVs in the refseq slot of the phyloseq object, and then rename our taxa to a short string
+
+dna <- Biostrings::DNAStringSet(taxa_names(ps3_Euks))
+names(dna) <- taxa_names(ps3_Euks)
+ps3_Euks <- merge_phyloseq(ps3_Euks, dna)
+taxa_names(ps3_Euks) <- paste0("ASV", seq(ntaxa(ps3_Euks)))
+ps3_Euks
+
+#Filter Euks Only
+ps_Euks_only_V3 = subset_taxa(ps3_Euks, Kingdom =="Eukaryota")
+ps_Euks_only_V3
+#Filter out Opisthokonta 
+ps_Euks_only_V3_no_OP = subset_taxa(ps_Euks_only_V3, Supergroup !="Opisthokonta")
+ps_Euks_only_V3_no_OP
+
+# Create tree pf filtered taxa. Must do this by phylum as file is too large otherwise.
+Euks_Tree_3 = rtree(ntaxa(ps_Euks_only_V3_no_OP), rooted=TRUE, tip.label=taxa_names(ps_Euks_only_V3_no_OP))
+plot(Euks_Tree_3)
+
+###Combine Phylogenetic trees, phyloseq object, and metadata
+#Eukaryotes Only
+Euks_Data_3 = merge_phyloseq(ps_Euks_only_V3_no_OP, Belize_Meta, Euks_Tree_3)
+Euks_Data_3
+
+
+
+plot_tree(Euks_Data_3, color="Trophic_Level", shape = "Impact", label.tips="Order", ladderize="left", plot.margin=0.01)
+
+
+
+#Visualize alpha-diversity:
+plot_richness(Euks_Data_3, x="North_to_South", measures=c("Shannon", "Simpson"), color="Impact")
+
+#Bar plot:
+
+top20 <- names(sort(taxa_sums(Euks_Data_3), decreasing=TRUE))[0:1000]
+ps.top20 <- transform_sample_counts(Euks_Data_3, function(OTU) OTU/sum(OTU))
+ps.top20 <- prune_taxa(top20, ps.top20)
+plot_bar(ps.top20, x="North_to_South", fill="Supergroup") + facet_wrap(~Impact, scales="free_x")
+plot_bar(ps.top20, x="North_to_South", fill="Supergroup") + facet_wrap(~Trophic_Level, scales="free_x")
