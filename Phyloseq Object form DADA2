@@ -1,6 +1,8 @@
 ###########Create Phyloseq Object From DADA2 Data###########
 ##We now construct a phyloseq object directly from the dada2 outputs.
-#Using Bayes Taxomy PR2 V3
+library(phyloseq)
+###
+#Create phyloseq object
 ps3_Euks <- phyloseq(otu_table(seqtab2.nochim, taxa_are_rows=FALSE), 
                      sample_data(Belize_Meta), 
                      tax_table(Bayes_taxa_PR2_V3))
