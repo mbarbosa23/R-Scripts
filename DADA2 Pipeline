@@ -141,13 +141,13 @@ otu_table <- seqtab3.nochim
 #Assign taxonomy using trained classifier. Note: Takes very long so use with server or powerful computer.
 
 #With PR2 4.14
-Taxonomy_Table<- assignTaxonomy(seqtab3.nochim,"/media/HDD_4T/Max/LT_Protists/Protists/pr2_version_4.14.0_SSU_dada2.fasta.gz", 
+Taxonomy_Table<- assignTaxonomy(seqtab3.nochim,"~/pr2_version_4.14.0_SSU_dada2.fasta.gz", 
                                     taxLevels = c("Kingdom","Supergroup","Division","Class","Order","Family","Genus","Species"),
                                     minBoot = 70,
                                     multithread=TRUE, verbose = TRUE)
 
+#Export taxonomy table and OTU table
 tax <-Taxonomy_Table
-#?assignTaxonomy
 taxa.print <- Taxonomy_Table # Removing sequence rownames for display only
 rownames(taxa.print) <- NULL
 head(taxa.print)
